@@ -20,6 +20,8 @@ def load(file_name):
 
 class cifar10(object): 
     def __init__(self):
+        self.train_indexs = list()
+        self.test_indexs = list()
         self.train_images, self.train_labels = self._get_train()
         self.test_images, self.test_labels = self._get_test()
         
@@ -30,36 +32,42 @@ class cifar10(object):
         #x1 = x1.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y1 = data1[b'labels']
         train_data = np.array(x1)
-        labels = np.array(y1)
+        train_labels = np.array(y1)
         
         data2 = load('cifar-10-batches-py/data_batch_2')
         x2 = np.array(data2[b'data'])
         #x2 = x2.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y2 = data2[b'labels']
         train_data = np.append(train_data, x2)
-        labels = np.append(labels, y2)
+        train_labels = np.append(train_labels, y2)
 
         data3 = load('cifar-10-batches-py/data_batch_3')
         x3 = np.array(data3[b'data'])
         #x3 = x3.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y3 = np.array(data3[b'labels']).reshape(10000)
         train_data = np.append(train_data, x3)
-        labels = np.append(labels, y3)
+        train_labels = np.append(train_labels, y3)
 
         data4 = load('cifar-10-batches-py/data_batch_4')
         x4 = np.array(data4[b'data'])
         #x4 = x4.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y4 = np.array(data4[b'labels']).reshape(10000)
         train_data = np.append(train_data, x4)
-        labels = np.append(labels, y4)
+        train_labels = np.append(train_labels, y4)
         
-        #train_data.dtype = 'float32'
-        train_data = train_data.reshape(-1, 3, 32, 32).transpose(0,3,2,1)
+        data5 = load('cifar-10-batches-py/data_batch_5')
+        x5 = np.array(data4[b'data'])
+        #x5 = x5.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
+        y5 = np.array(data4[b'labels']).reshape(10000)
+        train_data = np.append(train_data, x5)
+        train_labels = np.append(train_labels, y5)
         
+        train_data = train_data.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32,32,3)
+        train_labels.astype(np.int64)
         #train_data, train_labels= self._append_distort_images(train_data, train_labels)
         
-        for item in labels:
-            train_labels.append(convert_label(item))
+        #for item in labels:
+        #    train_labels.append(item)
         #print('image shape:',np.shape(train_data))
         #print('label shape:',np.shape(train_labels))  
         if len(train_data) != len(train_labels):
@@ -72,89 +80,53 @@ class cifar10(object):
         test_labels = list()
         data1 = load('cifar-10-batches-py/test_batch')
         x = np.array(data1[b'data'])
-        x = x.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
+        x = x.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32,32,3)
         y = data1[b'labels']
         for item in y:
-            test_labels.append(convert_label(item))
-        #print('test image shape:',np.shape(x))
-        #print('test label shape:',np.shape(test_labels))        
+            test_labels.append(item)
+        print('test image shape:',np.shape(x))
+        print('test label shape:',np.shape(test_labels))        
         print('test set length: '+str(len(x)))
         return x, test_labels
     
-    def _distort_image(self, image):
-        bbox = tf.constant([0.0, 0.0, 1.0, 1.0], dtype=tf.float32, shape=[1, 1, 4])
-        # Generate a single distorted bounding box.
-        begin, size, bbox_for_draw = tf.image.sample_distorted_bounding_box(
-            tf.shape(image),
-            bounding_boxes=bbox,
-            min_object_covered=0.1)
-        # Employ the bounding box to distort the image.
-        return tf.slice(image, begin, size)
+    def _resize(self,image):
+        resized_image = np.ndarray.reshape(image,(32,32,3))[0:28,0:28,0:3] 
+        #print(resized_image.shape)
+        return resized_image
     
-    def _distort_color(self, input_image, color_ordering=0):
-        image = tf.image.convert_image_dtype(input_image, dtype=tf.float32)
-        #print('_distort_color: enter')
-        if color_ordering == 0:
-            image = tf.image.random_brightness(image,32.0/255.0)
-            image = tf.image.random_saturation(image,lower=0.5,upper=1.5)
-            image = tf.image.random_hue(image,0.2)
-            image = tf.image.random_contrast(image,lower=0.5,upper=1.5)
-        elif color_ordering == 1:
-            image = tf.image.random_saturation(image,lower=0.5,upper=1.5)
-            image = tf.image.random_brightness(image,32.0/255.0)
-            image = tf.image.random_hue(image,0.2)
-            image = tf.image.random_contrast(image,lower=0.5,upper=1.5)  
-        #print('_distort_color: exit')
-        #image = tf.image.convert_image_dtype(input_image, dtype=tf.uint8)
-        return tf.clip_by_value(image,0.0,1.0)
-    
-    def _append_distort_images(self, images, labels):
-        distort_images = []
+    def get_train_batch(self,batch_size=128):
+        batch_image = list()
+        batch_label = list()
         i = 0
-        with tf.Session() as sess:
-            for image in images:  
-                if i%100 == 0:
-                    print('distort image:',str(i))
+        while i < batch_size:
+            index = random.randint(0, len(self.train_images)-1)
+            if not index in self.train_indexs:
                 i += 1
-                image.reshape(32,32,3)
-                distort_image = self._distort_color(image, np.random.randint(2))
-                img = sess.run(distort_image)
-                #print('process image')
-                distort_images = np.append(distort_images,img)
-                #print('append image')
-            images = np.append(images, distort_images)
-            labels = np.append(labels, train_label)
-        return images, labels
-    
-    def get_train_batch(self, batch_size=128):
-        input_queue = tf.train.slice_input_producer([self.train_images, self.train_labels], shuffle=True)
-        image_batch, label_batch = tf.train.batch(input_queue, batch_size=batch_size, \
-                  num_threads=1, capacity=64)
-        return image_batch, label_batch
+                d = self.train_images[index]
+                batch_image.append(self._resize(d))
+                batch_label.append(self.train_labels[index])
+                self.train_indexs.append(index)
+                if len(self.train_indexs) >=  len(self.train_images):
+                    self.train_indexs.clear()
+        return batch_image, batch_label
+     
+    def get_test_batch(self,batch_size=10000):
+        batch_image = list()
+        batch_label = list()
+        i = 0
+        while i < batch_size:
+            index = random.randint(0, len(self.test_images)-1)
+            if not index in self.test_indexs:
+                i += 1
+                d = self.test_images[index]
+                batch_image.append(self._resize(d)) 
+                batch_label.append(self.train_labels[index])
+                self.test_indexs.append(index)
+                if len(self.test_indexs) >=  len(self.test_images):
+                    self.test_indexs.clear()
+        return batch_image, batch_label
 
-    def get_test_batch(self, batch_size=10000):
-        input_queue = tf.train.slice_input_producer([self.test_images, self.test_labels], shuffle=True)
-        image_batch, label_batch = tf.train.batch(input_queue, batch_size=batch_size, \
-                  num_threads=1, capacity=64)
-        return image_batch, label_batch
     
- 
-"""
-def get_batch_(batch_size, image, label):
-    batch_image = list()
-    batch_label = list()
-    indexs = list()
-    for i in range(batch_size):
-        index = random.randint(0, len(image)-1)
-        while index in indexs:
-            index = random.randint(0, len(image)-1)
-        d = list(image[index])
-        batch_image.append(d)
-        z = label[index]
-        batch_label.append(convert_label(z))
-        indexs.append(index)
-    return batch_image, batch_label
-""" 
 def convert_label(item):
          if item == 0:
             return [1,0,0,0,0,0,0,0,0,0]

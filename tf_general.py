@@ -109,10 +109,8 @@ def drop_out(x, keep_prob, name):
 
 def saveEvalData(file,datalist):
     with open(os.getcwd()+"/"+file,'a+',encoding='utf-8') as f:
-        step = 0
         for x in datalist:
-            step += 1
-            f.write(str(step)+','+ str(x) + '\n')
+            f.write(str(x) + '\n')
             
 def printimages(images):
     for img in images:    

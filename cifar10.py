@@ -24,7 +24,7 @@ class cifar10(object):
         self.test_indexs = list()
         self.train_images, self.train_labels = self._get_train()
         self.test_images, self.test_labels = self._get_test()
-	self.label_dic = {0:'aircraft', 1:'car',2:'bird',3:'cat',4:'deer',5:'dog',6:'frog',7:'horse',8:'ship',9:'truck'}
+        self.label_dic = {0:'aircraft', 1:'car',2:'bird',3:'cat',4:'deer',5:'dog',6:'frog',7:'horse',8:'ship',9:'truck'}
 
         
     def _get_train(self):
@@ -92,7 +92,7 @@ class cifar10(object):
         return x, test_labels
     
     def _resize(self,image):
-        resized_image = np.ndarray.reshape(image,(32,32,3))[0:28,0:28,0:3] 
+        resized_image = np.ndarray.reshape(image,(32,32,3))[2:30,2:30,0:3] 
         #print(resized_image.shape)
         return resized_image
     
@@ -122,7 +122,7 @@ class cifar10(object):
                 i += 1
                 d = self.test_images[index]
                 batch_image.append(self._resize(d)) 
-                batch_label.append(self.train_labels[index])
+                batch_label.append(self.test_labels[index])
                 self.test_indexs.append(index)
                 if len(self.test_indexs) >=  len(self.test_images):
                     self.test_indexs.clear()

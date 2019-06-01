@@ -99,6 +99,7 @@ class cifar10(object):
     def get_train_batch(self,batch_size=128):
         batch_image = list()
         batch_label = list()
+        data_index = list()
         i = 0
         while i < batch_size:
             index = random.randint(0, len(self.train_images)-1)
@@ -108,13 +109,15 @@ class cifar10(object):
                 batch_image.append(self._resize(d))
                 batch_label.append(self.train_labels[index])
                 self.train_indexs.append(index)
+                data_index.append(index)
                 if len(self.train_indexs) >=  len(self.train_images):
                     self.train_indexs.clear()
-        return batch_image, batch_label
+        return batch_image, batch_label, data_index
      
     def get_test_batch(self,batch_size=10000):
         batch_image = list()
         batch_label = list()
+        data_index = list()
         i = 0
         while i < batch_size:
             index = random.randint(0, len(self.test_images)-1)
@@ -124,9 +127,10 @@ class cifar10(object):
                 batch_image.append(self._resize(d)) 
                 batch_label.append(self.test_labels[index])
                 self.test_indexs.append(index)
+                data_index.append(index)
                 if len(self.test_indexs) >=  len(self.test_images):
                     self.test_indexs.clear()
-        return batch_image, batch_label
+        return batch_image, batch_label,data_index
 
     
 def convert_label(item):

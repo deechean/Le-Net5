@@ -10,6 +10,7 @@ import tensorflow as tf
 import os 
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 def get_variable(name, shape, initializer, regularizer=None, dtype='float', trainable=True):
     collections = [tf.GraphKeys.GLOBAL_VARIABLES]
@@ -106,12 +107,18 @@ def drop_out(x, keep_prob, name):
         
     """
     return tf.nn.dropout(x, keep_prob=keep_prob, name=name)
-
+    
 def saveEvalData(file,datalist):
     with open(os.getcwd()+"/"+file,'a+',encoding='utf-8') as f:
         for x in datalist:
             f.write(str(x) + '\n')
-            
+
+def savelog(parameter, globalstep, value):
+    filename = 'lenet_train_cifar10.log'
+    log = []
+    log.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+ ', global step: '+ str(globalstep) + ', '+ parameter+':'+str(value))
+    saveEvalData(filename, log)
+    
 def printimages(images):
     for img in images:    
         plt.imshow(np.asarray(img).reshape(32,32,3))

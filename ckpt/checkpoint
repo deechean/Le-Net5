@@ -1,2 +1,2 @@
-model_checkpoint_path: "cifar10_11000.ckpt-10999"
-all_model_checkpoint_paths: "cifar10_11000.ckpt-10999"
+model_checkpoint_path: "cifar10_50000.ckpt-49999"
+all_model_checkpoint_paths: "cifar10_50000.ckpt-49999"

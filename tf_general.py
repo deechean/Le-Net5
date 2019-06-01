@@ -113,10 +113,26 @@ def saveEvalData(file,datalist):
         for x in datalist:
             f.write(str(x) + '\n')
 
+def isIter(object):
+    try:
+        iter(object)
+        return True
+    except:
+        return False
+    
 def savelog(parameter, globalstep, value):
     filename = 'lenet_train_cifar10.log'
+    valuestr = '['
+    
+    if isIter(value):
+        for item in value:
+            valuestr += str(item) + ','
+        valuestr = valuestr[:len(valuestr)-1]+']'
+    else:
+        valuestr = str(value)
+        
     log = []
-    log.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+ ', global step: '+ str(globalstep) + ', '+ parameter+':'+str(value))
+    log.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+ ', global step: '+ str(globalstep) + ', '+ parameter+':'+valuestr)
     saveEvalData(filename, log)
     
 def printimages(images):

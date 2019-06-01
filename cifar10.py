@@ -24,6 +24,8 @@ class cifar10(object):
         self.test_indexs = list()
         self.train_images, self.train_labels = self._get_train()
         self.test_images, self.test_labels = self._get_test()
+	self.label_dic = {0:'aircraft', 1:'car',2:'bird',3:'cat',4:'deer',5:'dog',6:'frog',7:'horse',8:'ship',9:'truck'}
+
         
     def _get_train(self):
         train_labels = []        

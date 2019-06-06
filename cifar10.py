@@ -96,6 +96,24 @@ class cifar10(object):
         #print(resized_image.shape)
         return resized_image
     
+    def image_flipper(self,image):
+        swap_time = int(len(image)/2)
+        for i in range(swap_time):
+            image[[i,len(image)-i-1],:] = image[[len(image)-i-1,i],:]
+        return image
+        
+    def image_distort(self,image):
+        
+        return image
+    
+    def random_bright(self, image, delta=8):
+        if random.random() < 0.5:
+            delta = random.uniform(-delta, delta)
+            image.astype(np.int64))
+            image += int(delta)
+            image = image.clip(min=0, max=255)
+        return image
+   
     def get_train_batch(self,batch_size=128):
         batch_image = list()
         batch_label = list()
@@ -113,7 +131,7 @@ class cifar10(object):
                 if len(self.train_indexs) >=  len(self.train_images):
                     self.train_indexs.clear()
         return batch_image, batch_label, data_index
-     
+        
     def get_test_batch(self,batch_size=10000):
         batch_image = list()
         batch_label = list()
@@ -171,6 +189,7 @@ if __name__ == '__main__':
                 i += 1
                 for img in batch_x:
                     print('image shape',np.shape(img))
+                    img = data.image_flipper(img)
                     plt.imshow(np.array(img).reshape(32,32,3))
                     plt.show()
             

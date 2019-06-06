@@ -20,6 +20,7 @@ class LetNet5(object):
     def _build_net(self):
         with tf.name_scope('norm'):    
             self.x_norm = tf.nn.l2_normalize(tf.cast(self.input, tf.float32),dim=0)
+            #self.x_norm= tf.nn.lrn(self.input,depth_radius=2,bias=0,alpha=1,beta=1)
         
         with tf.name_scope('conv_1'):
             self.conv1 = tfg.conv2d(self.x_norm, 5, 1, 6, 'conv1', 'VALID')
@@ -31,7 +32,7 @@ class LetNet5(object):
             self.conv2 = tfg.conv2d(self.pool1, 5, 1, 16, 'conv2', 'VALID')
             
         with tf.name_scope('pool_2'):
-            self.pool2 = tfg.avg_pool(self.conv2, 1, 1, 'pool2', 'VALID')
+            self.pool2 = tfg.max_pool(self.conv2, 1, 1, 'pool2', 'VALID')
             
         with tf.name_scope('conv_3'):
             self.conv3 = tfg.conv2d(self.pool2, 5, 1, 120, 'conv3', 'VALID')

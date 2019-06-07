@@ -31,42 +31,36 @@ class cifar10(object):
         train_labels = []        
         data1 = load('cifar-10-batches-py/data_batch_1')
         x1 = np.array(data1[b'data'])
-        #x1 = x1.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y1 = data1[b'labels']
         train_data = np.array(x1)
         train_labels = np.array(y1)
         
         data2 = load('cifar-10-batches-py/data_batch_2')
         x2 = np.array(data2[b'data'])
-        #x2 = x2.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y2 = data2[b'labels']
         train_data = np.append(train_data, x2)
         train_labels = np.append(train_labels, y2)
 
         data3 = load('cifar-10-batches-py/data_batch_3')
         x3 = np.array(data3[b'data'])
-        #x3 = x3.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y3 = np.array(data3[b'labels']).reshape(10000)
         train_data = np.append(train_data, x3)
         train_labels = np.append(train_labels, y3)
 
         data4 = load('cifar-10-batches-py/data_batch_4')
         x4 = np.array(data4[b'data'])
-        #x4 = x4.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y4 = np.array(data4[b'labels']).reshape(10000)
         train_data = np.append(train_data, x4)
         train_labels = np.append(train_labels, y4)
         
         data5 = load('cifar-10-batches-py/data_batch_5')
         x5 = np.array(data4[b'data'])
-        #x5 = x5.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32*32*3)
         y5 = np.array(data4[b'labels']).reshape(10000)
         train_data = np.append(train_data, x5)
         train_labels = np.append(train_labels, y5)
         
-        train_data = train_data.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32,32,3)
+        train_data = train_data.reshape(-1, 3, 32, 32)
         train_labels.astype(np.int64)
-        #train_data, train_labels= self._append_distort_images(train_data, train_labels)
         
         #for item in labels:
         #    train_labels.append(item)
@@ -81,9 +75,9 @@ class cifar10(object):
     def _get_test(self):
         test_labels = list()
         data1 = load('cifar-10-batches-py/test_batch')
-        x = np.array(data1[b'data'])
-        x = x.reshape(-1, 3, 32, 32).transpose(0,3,2,1).reshape(-1,32,32,3)
+        x = np.array(data1[b'data']).reshape(-1, 3, 32, 32)
         y = data1[b'labels']
+        
         for item in y:
             test_labels.append(item)
         print('test image shape:',np.shape(x))
@@ -98,9 +92,11 @@ class cifar10(object):
     
     def random_flipper(self,image):
         if random.random() < 0.5:
-            swap_time = int(len(image)/2)
+            swap_time = int(len(image[0])/2)
             for i in range(swap_time):
-                image[[i,len(image)-i-1],:] = image[[len(image)-i-1,i],:]
+                image[0][[i,len(image[0])-i-1],:] = image[0][[len(image[0])-i-1,i],:]
+                image[1][[i,len(image[1])-i-1],:] = image[1][[len(image[1])-i-1,i],:]
+                image[2][[i,len(image[2])-i-1],:] = image[2][[len(image[2])-i-1,i],:]
         return image
         
     def image_distort(self,image):
@@ -112,15 +108,12 @@ class cifar10(object):
             delta_r = int(random.uniform(-delta, delta))
             delta_g = int(random.uniform(-delta, delta))
             delta_b = int(random.uniform(-delta, delta))
-            image = image.transpose(2,1,0)
-            #print(1)
-            #print(np.shape(image))
-            
+
             R = image[0] + delta_r
-            G = image[0] + delta_g
-            B = image[0] + delta_b
+            G = image[1] + delta_g
+            B = image[2] + delta_b
             
-            image = np.asarray([R,G,B]).transpose(2,1,0) 
+            image = np.asarray([R,G,B])
             #print(2)
             #print(np.shape(image))
             image = image.clip(min=0, max=255)
@@ -132,19 +125,19 @@ class cifar10(object):
         data_index = list()
         i = 0
         while i < batch_size:
-            index = random.randint(0, len(self.train_images)-1)
+            index = random.randint(0, len(self.train_labels)-1)
             if not index in self.train_indexs:
                 i += 1
                 d = self.train_images[index]
                 if augument:
                     d = self.random_bright(self.random_flipper(d))
-                batch_image.append(self._resize(d))
+                batch_image.append(d)
                 batch_label.append(self.train_labels[index])
                 self.train_indexs.append(index)
                 data_index.append(index)
                 if len(self.train_indexs) >=  len(self.train_images):
                     self.train_indexs.clear()
-        return batch_image, batch_label, data_index
+        return np.array(batch_image).transpose(0,3,2,1).reshape(-1,32,32,3), batch_label, data_index
         
     def get_test_batch(self,batch_size=10000):
         batch_image = list()
@@ -152,40 +145,17 @@ class cifar10(object):
         data_index = list()
         i = 0
         while i < batch_size:
-            index = random.randint(0, len(self.test_images)-1)
+            index = random.randint(0, len(self.test_labels)-1)
             if not index in self.test_indexs:
                 i += 1
                 d = self.test_images[index]
-                batch_image.append(self._resize(d)) 
+                batch_image.append(d) 
                 batch_label.append(self.test_labels[index])
                 self.test_indexs.append(index)
                 data_index.append(index)
                 if len(self.test_indexs) >=  len(self.test_images):
                     self.test_indexs.clear()
-        return batch_image, batch_label,data_index
-
-    
-def convert_label(item):
-         if item == 0:
-            return [1,0,0,0,0,0,0,0,0,0]
-         elif item == 1:
-            return[0,0,0,0,0,0,0,0,0,1]
-         elif item == 2:
-            return[0,0,0,0,0,0,0,0,1,0]
-         elif item == 3:
-            return[0,0,0,0,0,0,0,1,0,0]
-         elif item == 4:
-            return[0,0,0,0,0,0,1,0,0,0]
-         elif item == 5:
-            return[0,0,0,0,0,1,0,0,0,0]      
-         elif item == 6:
-            return[0,0,0,0,1,0,0,0,0,0]
-         elif item == 7:
-            return[0,0,0,1,0,0,0,0,0,0]   
-         elif item == 8:
-            return[0,0,1,0,0,0,0,0,0,0]   
-         else:
-            return[0,1,0,0,0,0,0,0,0,0]         
+        return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,32,32,3), batch_label,data_index    
 
 if __name__ == '__main__':
     data = cifar10()

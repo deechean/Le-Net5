@@ -126,7 +126,7 @@ class cifar10(object):
             image = image.clip(min=0, max=255)
         return image
    
-    def get_train_batch(self,batch_size=128):
+    def get_train_batch(self,batch_size=128, augument = True):
         batch_image = list()
         batch_label = list()
         data_index = list()
@@ -135,7 +135,9 @@ class cifar10(object):
             index = random.randint(0, len(self.train_images)-1)
             if not index in self.train_indexs:
                 i += 1
-                d = self.random_bright(self.random_flipper(self.train_images[index]))
+                d = self.train_images[index]
+                if augument:
+                    d = self.random_bright(self.random_flipper(d))
                 batch_image.append(self._resize(d))
                 batch_label.append(self.train_labels[index])
                 self.train_indexs.append(index)

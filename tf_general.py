@@ -120,8 +120,8 @@ def isIter(object):
     except:
         return False
     
-def savelog(variable, globalstep, value):
-    filename = 'lenet_train_cifar10.log'
+def savelog(filename, variable, globalstep, value):
+    #filename = 'lenet_train_cifar10.log'
     valuestr = '['
     
     if isIter(value):

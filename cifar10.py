@@ -96,21 +96,33 @@ class cifar10(object):
         #print(resized_image.shape)
         return resized_image
     
-    def image_flipper(self,image):
-        swap_time = int(len(image)/2)
-        for i in range(swap_time):
-            image[[i,len(image)-i-1],:] = image[[len(image)-i-1,i],:]
+    def random_flipper(self,image):
+        if random.random() < 0.5:
+            swap_time = int(len(image)/2)
+            for i in range(swap_time):
+                image[[i,len(image)-i-1],:] = image[[len(image)-i-1,i],:]
         return image
         
     def image_distort(self,image):
         
         return image
     
-    def random_bright(self, image, delta=8):
+    def random_bright(self, image, delta=32):
         if random.random() < 0.5:
-            delta = random.uniform(-delta, delta)
-            image.astype(np.int64))
-            image += int(delta)
+            delta_r = int(random.uniform(-delta, delta))
+            delta_g = int(random.uniform(-delta, delta))
+            delta_b = int(random.uniform(-delta, delta))
+            image = image.transpose(2,1,0)
+            #print(1)
+            #print(np.shape(image))
+            
+            R = image[0] + delta_r
+            G = image[0] + delta_g
+            B = image[0] + delta_b
+            
+            image = np.asarray([R,G,B]).transpose(2,1,0) 
+            #print(2)
+            #print(np.shape(image))
             image = image.clip(min=0, max=255)
         return image
    
@@ -123,7 +135,7 @@ class cifar10(object):
             index = random.randint(0, len(self.train_images)-1)
             if not index in self.train_indexs:
                 i += 1
-                d = self.train_images[index]
+                d = self.random_bright(self.random_flipper(self.train_images[index]))
                 batch_image.append(self._resize(d))
                 batch_label.append(self.train_labels[index])
                 self.train_indexs.append(index)

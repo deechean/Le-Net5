@@ -126,11 +126,11 @@ class LeNet5_LERU(object):
 
     def _build_net(self):
         with tf.name_scope('norm'):    
-            #self.x_norm = tf.nn.l2_normalize(tf.cast(self.input, tf.float32),dim=0)
-            self.x_norm= tf.nn.lrn(self.input,depth_radius=4, bias=1.0, alpha=0.001/9, beta=0.75)
+            self.x_norm = tf.nn.l2_normalize(tf.cast(self.input, tf.float32),dim=0)
+            #self.x_norm= tf.nn.lrn(self.input,depth_radius=4, bias=1.0, alpha=0.001/9, beta=0.75)
         
         with tf.name_scope('conv_1'):
-            self.conv1 = tfg.conv2d(self.x_norm, 5, 1, 12, 'conv1', 'VALID','RELU')
+            self.conv1 = tfg.conv2d(self.x_norm, 5, 1, 12, 'conv1', 'VALID')
             print('conv_1: ', self.conv1.get_shape())
             
         with tf.name_scope('pool_1'):
@@ -138,7 +138,7 @@ class LeNet5_LERU(object):
             print('pool_1: ', self.pool1.get_shape())
             
         with tf.name_scope('conv_2'):
-            self.conv2 = tfg.conv2d(self.pool1, 5, 1, 24, 'conv2', 'VALID','RELU')
+            self.conv2 = tfg.conv2d(self.pool1, 5, 1, 24, 'conv2', 'VALID')
             print('conv_2: ', self.conv2.get_shape())
             
         with tf.name_scope('pool_2'):

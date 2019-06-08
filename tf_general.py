@@ -52,12 +52,11 @@ def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'RELU
         conv = tf.nn.conv2d(x, kernel, [1, stride, stride, 1], padding=padding)
         #add conv result with bias
         out = tf.nn.bias_add(conv, bias)
-        #activate
-        if activate == 'RELU':
-            out = tf.nn.relu(out)
-        elif activate == 'SIGMOID':
+        #activate           
+        if activate == 'SIGMOID':
             out = tf.nn.sigmoid(out)
-        
+        else:
+            out = tf.nn.relu(out)
         return out
     
     

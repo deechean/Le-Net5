@@ -23,7 +23,7 @@ def get_variable(name, shape, initializer, regularizer=None, dtype='float', trai
                            trainable=trainable)
     #tf.get_variable_scope().reuse_variables()
 
-def conv2d(x, ksize, stride, filter_out, name, padding):
+def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'RELU'):
     """ 
     x: input 
     ksize: kernel size 
@@ -31,6 +31,7 @@ def conv2d(x, ksize, stride, filter_out, name, padding):
     filter_out: filters numbers
     name: name of the calculation
     padding: VALID - no padding, SAME - keep the output size same as input size
+    activate: RELU - relu or SIGMOID  -sigmoid
     """
     with tf.variable_scope(name):
         #Get input dimention
@@ -51,8 +52,13 @@ def conv2d(x, ksize, stride, filter_out, name, padding):
         conv = tf.nn.conv2d(x, kernel, [1, stride, stride, 1], padding=padding)
         #add conv result with bias
         out = tf.nn.bias_add(conv, bias)
-        #use relu
-        return tf.nn.relu(out)
+        #activate
+        if activate == 'RELU':
+            out = tf.nn.relu(out)
+        elif activate == 'SIGMOID':
+            out = tf.nn.sigmoid(out)
+        
+        return out
     
     
 def max_pool(x, ksize, stride, name, padding):
@@ -113,27 +119,29 @@ def saveEvalData(file,datalist):
         for x in datalist:
             f.write(str(x) + '\n')
 
-def isIter(object):
+def isIter(variable):
     try:
-        iter(object)
+        iter(variable)
         return True
     except:
         return False
     
-def savelog(filename, variable, globalstep, value):
-    #filename = 'lenet_train_cifar10.log'
-    valuestr = '['
-    
-    if isIter(value):
-        for item in value:
-            valuestr += str(item) + ','
+def strlize(variable):   
+    if isIter(variable):
+        valuestr = '['
+        for item in variable:
+            valuestr += strlize(item) + ','
         valuestr = valuestr[:len(valuestr)-1]+']'
     else:
-        valuestr = str(value)
-        
+        valuestr = str(variable)
+    return valuestr
+      
+def savelog(logdir, variable, globalstep, value):
+    #filename = 'lenet_train_cifar10.log'
+    valuestr = strlize(value)        
     log = []
     log.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+ ', global step: '+ str(globalstep) + ', '+ variable +':'+valuestr)
-    saveEvalData(filename, log)
+    saveEvalData(logdir+variable, log)
 
 def readlog(logfile, variable):
     parameterlist = []

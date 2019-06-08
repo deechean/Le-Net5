@@ -80,8 +80,8 @@ class cifar10(object):
         
         for item in y:
             test_labels.append(item)
-        print('test image shape:',np.shape(x))
-        print('test label shape:',np.shape(test_labels))        
+        #print('test image shape:',np.shape(x))
+        #print('test label shape:',np.shape(test_labels))        
         print('test set length: '+str(len(x)))
         return x, test_labels
     

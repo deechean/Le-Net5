@@ -126,7 +126,8 @@ class LeNet5_LERU(object):
 
     def _build_net(self):
         with tf.name_scope('norm'):    
-            self.x_norm = tf.nn.l2_normalize(tf.cast(self.input, tf.float32),dim=1)
+
+            self.x_norm = tf.nn.l2_normalize(tf.cast(self.input, tf.float32),dim=0)
             #self.x_norm= tf.nn.lrn(self.input,depth_radius=4, bias=1.0, alpha=0.001/9, beta=0.75)
         
         with tf.name_scope('conv_1'):

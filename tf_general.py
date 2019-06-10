@@ -11,6 +11,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import aws_boto3
 
 def get_variable(name, shape, initializer, regularizer=None, dtype='float', trainable=True):
     collections = [tf.GraphKeys.GLOBAL_VARIABLES]
@@ -52,12 +53,11 @@ def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'RELU
         conv = tf.nn.conv2d(x, kernel, [1, stride, stride, 1], padding=padding)
         #add conv result with bias
         out = tf.nn.bias_add(conv, bias)
-        #activate
-        if activate == 'RELU':
-            out = tf.nn.relu(out)
-        elif activate == 'SIGMOID':
+        #activate           
+        if activate == 'SIGMOID':
             out = tf.nn.sigmoid(out)
-        
+        else:
+            out = tf.nn.relu(out)
         return out
     
     
@@ -177,3 +177,10 @@ def printimages(images):
     for img in images:    
         plt.imshow(np.asarray(img).reshape(32,32,3))
         plt.show()
+
+def SaveCheckpoint2S3(ori_dir,des_dir):
+    bucketname = 'sagemaker-deechean-dl' 
+    for file in os.listdir(file_dir):
+        if os.path.isfile(file_dir+file):
+            print('save files to s3')
+            aws_boto3.upload_file(file_dir+file, bucketname,des_dir+file)

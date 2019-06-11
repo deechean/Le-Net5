@@ -221,4 +221,4 @@ class LeNet5_LERU_ENH(object):
 
         with tf.name_scope('prediction'):
             self.prediction = tf.nn.softmax(self.drop1)
-            print('prediction: ', self.prediction.get_shape())        
+            print('prediction: ', self.prediction.get_shape())

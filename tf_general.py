@@ -114,36 +114,6 @@ def drop_out(x, keep_prob, name):
     """
     return tf.nn.dropout(x, keep_prob=keep_prob, name=name)
     
-
-def readlog(logfile, variable):
-    parameterlist = []
-    with open(logfile,'r',encoding='utf-8') as f:
-        while True: 
-            line = f.readline()
-            if line == '':
-                break
-            if line.find(' '+variable+':') > 0:
-                pos = line.find('global step:')
-                if pos > 0: 
-                    line = line[line.find('global step:')+len('global step:'):]
-                    step  = int(line[:line.find(',')])
-                    value = line[line.find(variable+':')+len(variable+':'):line.find('\n')]
-                    try:
-                        value = float(value)
-                    except ValueError:
-                        if value[0] == '[':
-                            value = value[1:]
-                            itemlist = []
-                            while value.find(",") > 0: 
-                                item = float(value[:value.find(",")])
-                                itemlist.append(item)
-                                value = value[value.find(",")+1:]
-                            item = float(value[:-1])
-                            itemlist.append(item)
-                        value = itemlist                                    
-                parameterlist.append([step, value]) 
-                #print([step, value])
-    return parameterlist
     
 def printimages(images):
     for img in images:    

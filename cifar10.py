@@ -19,9 +19,10 @@ def load(file_name):
         return data  
 
 class cifar10(object): 
-    def __init__(self):
+    def __init__(self,path='cifar-10-batches-py/'):
         self.train_indexs = list()
         self.test_indexs = list()
+        self.data_path = path
         self.train_images, self.train_labels = self._get_train()
         self.test_images, self.test_labels = self._get_test()
         self.label_dic = {0:'aircraft', 1:'car',2:'bird',3:'cat',4:'deer',5:'dog',6:'frog',7:'horse',8:'ship',9:'truck'}
@@ -29,31 +30,31 @@ class cifar10(object):
         
     def _get_train(self):
         train_labels = []        
-        data1 = load('cifar-10-batches-py/data_batch_1')
+        data1 = load(self.data_path+'data_batch_1')
         x1 = np.array(data1[b'data'])
         y1 = data1[b'labels']
         train_data = np.array(x1)
         train_labels = np.array(y1)
         
-        data2 = load('cifar-10-batches-py/data_batch_2')
+        data2 = load(self.data_path+'data_batch_2')
         x2 = np.array(data2[b'data'])
         y2 = data2[b'labels']
         train_data = np.append(train_data, x2)
         train_labels = np.append(train_labels, y2)
 
-        data3 = load('cifar-10-batches-py/data_batch_3')
+        data3 = load(self.data_path+'data_batch_3')
         x3 = np.array(data3[b'data'])
         y3 = np.array(data3[b'labels']).reshape(10000)
         train_data = np.append(train_data, x3)
         train_labels = np.append(train_labels, y3)
 
-        data4 = load('cifar-10-batches-py/data_batch_4')
+        data4 = load(self.data_path+'data_batch_4')
         x4 = np.array(data4[b'data'])
         y4 = np.array(data4[b'labels']).reshape(10000)
         train_data = np.append(train_data, x4)
         train_labels = np.append(train_labels, y4)
         
-        data5 = load('cifar-10-batches-py/data_batch_5')
+        data5 = load(self.data_path+'data_batch_5')
         x5 = np.array(data4[b'data'])
         y5 = np.array(data4[b'labels']).reshape(10000)
         train_data = np.append(train_data, x5)
@@ -74,7 +75,7 @@ class cifar10(object):
  
     def _get_test(self):
         test_labels = list()
-        data1 = load('cifar-10-batches-py/test_batch')
+        data1 = load(self.data_path+'test_batch')
         x = np.array(data1[b'data']).reshape(-1, 3, 32, 32)
         y = data1[b'labels']
         

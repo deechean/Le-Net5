@@ -114,34 +114,6 @@ def drop_out(x, keep_prob, name):
     """
     return tf.nn.dropout(x, keep_prob=keep_prob, name=name)
     
-def saveEvalData(file,datalist):
-    with open(os.getcwd()+"/"+file,'a+',encoding='utf-8') as f:
-        for x in datalist:
-            f.write(str(x) + '\n')
-
-def isIter(variable):
-    try:
-        iter(variable)
-        return True
-    except:
-        return False
-    
-def strlize(variable):   
-    if isIter(variable):
-        valuestr = '['
-        for item in variable:
-            valuestr += strlize(item) + ','
-        valuestr = valuestr[:len(valuestr)-1]+']'
-    else:
-        valuestr = str(variable)
-    return valuestr
-      
-def savelog(logdir, variable, globalstep, value):
-    #filename = 'lenet_train_cifar10.log'
-    valuestr = strlize(value)        
-    log = []
-    log.append(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+ ', global step: '+ str(globalstep) + ', '+ variable +':'+valuestr)
-    saveEvalData(logdir+variable, log)
 
 def readlog(logfile, variable):
     parameterlist = []

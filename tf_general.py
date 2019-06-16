@@ -32,7 +32,7 @@ def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'RELU
     filter_out: filters numbers
     name: name of the calculation
     padding: VALID - no padding, SAME - keep the output size same as input size
-    activate: RELU - relu or SIGMOID  -sigmoid
+    activate: RELU - relu or SIGMOID  -sigmoid, TANH - tanh
     """
     with tf.variable_scope(name):
         #Get input dimention
@@ -56,6 +56,8 @@ def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'RELU
         #activate           
         if activate == 'SIGMOID':
             out = tf.nn.sigmoid(out)
+        elif activate == 'TANH':
+            out = tf.nn.tanh(out)
         else:
             out = tf.nn.relu(out)
         return out
@@ -105,14 +107,14 @@ def fc_layer(x, i_size, o_size, name, is_relu=None):
             out = tf.nn.relu(out)
         return out
 
-def drop_out(x, keep_prob, name):
+def drop_out(x, rate, name):
     """drop out to prevent overfit, it should only used in training, not in test
         x: input
         keep_prob: probability of drop out, normally is 0.5
         name: name of the calculation
         
     """
-    return tf.nn.dropout(x, keep_prob=keep_prob, name=name)
+    return tf.nn.dropout(x, rate=rate, name=name)
     
     
 def printimages(images):

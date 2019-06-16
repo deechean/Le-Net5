@@ -24,7 +24,7 @@ def get_variable(name, shape, initializer, regularizer=None, dtype='float', trai
                            trainable=trainable)
     #tf.get_variable_scope().reuse_variables()
 
-def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'RELU'):
+def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'NONE'):
     """ 
     x: input 
     ksize: kernel size 
@@ -58,7 +58,7 @@ def conv2d(x, ksize, stride, filter_out, name, padding='VALID', activate = 'RELU
             out = tf.nn.sigmoid(out)
         elif activate == 'TANH':
             out = tf.nn.tanh(out)
-        else:
+        elif activate == 'RELU':
             out = tf.nn.relu(out)
         return out
     

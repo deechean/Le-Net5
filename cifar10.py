@@ -12,6 +12,7 @@ import random
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import time 
+from PIL import Image
 
 def load(file_name):
     with open(file_name, 'rb') as fo:
@@ -157,25 +158,7 @@ class cifar10(object):
                 if len(self.test_indexs) >=  len(self.test_images):
                     self.test_indexs.clear()
         return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,32,32,3), batch_label,data_index    
-
-if __name__ == '__main__':
-    data = cifar10()
-    batch_size=10
-    
-    with tf.Graph().as_default() as g: 
-        x, y = data.get_train_batch(batch_size)
-        with tf.Session() as sess:
-            coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess, coord)
-            i = 0
-            while (not coord.should_stop()) and i < 5:
-                batch_x, batch_y = sess.run([x, y])
-                print ('batch_x shape',np.shape(batch_x))
-                i += 1
-                for img in batch_x:
-                    print('image shape',np.shape(img))
-                    img = data.image_flipper(img)
-                    plt.imshow(np.array(img).reshape(32,32,3))
-                    plt.show()
-            
+    def resize_image(self, image, new_size):
+        
+        return image          
         

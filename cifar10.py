@@ -13,6 +13,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import time 
 from PIL import Image
+#import cv2
 
 def load(file_name):
     with open(file_name, 'rb') as fo:
@@ -132,7 +133,7 @@ class cifar10(object):
                 i += 1
                 d = self.train_images[index]
                 if augument:
-                    d = self.random_bright(self.random_flipper(d))
+                    d = self.ramdom_wrap(self.random_bright(self.random_flipper(d)))
                 batch_image.append(d)
                 batch_label.append(self.train_labels[index])
                 self.train_indexs.append(index)
@@ -159,6 +160,20 @@ class cifar10(object):
                     self.test_indexs.clear()
         return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,32,32,3), batch_label,data_index    
     def resize_image(self, image, new_size):
-        
-        return image          
-        
+        img = Image.fromarray(image.astype('uint8').transpose(2,1,0))       
+        return np.asarray(img.resize(new_size,resample=Image.BILINEAR)).transpose(1,2,0)
+    
+    def ramdom_wrap(self, image):
+        """
+        if random.random() < 0.5:
+            max_offsetx = 5
+            max_offsety = 5
+            new_image = np.zeros((32+5,32+5,3), dtype = float, order = 'C')
+            for i in range(len(image)+max_offsetx):
+                for j in range(len(image[i]+max_offsety):
+                    if i > len(image) or j > len(image[i]): 
+                          new_image[i][j]= 0
+                    else: 
+                          new_image[i][j] = image[i+random.randint(-max_offsetx, max_offsetx)][j+random.randint(-max_offsety, max_offsety)]
+        """
+        return image
